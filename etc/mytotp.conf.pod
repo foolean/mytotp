@@ -1,0 +1,179 @@
+=head1 NAME
+
+mytotp.conf - MyTOTP Configuration File
+
+
+=head1 DESCRIPTION
+
+B<mytotp.conf> is the main configuration file for MyTOTP
+
+=head1 CONFIGURATION OPTIONS
+
+The different configuration options are:
+
+=over 4
+
+=item step_size STEP
+
+Default step to use when creating new accounts.
+
+=item secret_bits BITS
+
+Default bit size for the shared secret when creating new accounts.
+
+=item lifetime LIFETIME
+
+Default lifetime when creating new accounts.  The option must follow the
+format of N[ymd], specifing the number of '[y]ears', '[m]onths', or '[d]ays'
+for the lifetime (e.g. 3y).
+
+=item fail_lockout COUNT
+
+Number of authentication failures before locking the user's account.  Setting
+a value of 0 will disable lockouts.
+
+=item debug [YES|NO]
+
+Print, or log, debug messages.  Valid options are 'yes',
+'no', 'true', false', '1', or '0'.
+
+=item issuer ISSUER
+
+Value for the issuer field in the QR code.  This is used to identify the
+account in the user's client app and should be set to something that will be
+obvious (e.g. the organizaiton's name).
+
+=back
+
+=head2 Shared secret encryption
+
+=over 4
+
+=item encrypt_secret  [YES|NO]
+
+Specify whether or not to encrypt the shared secret.  Valid options are 'yes',
+'no', 'true', false', '1', or '0'.  When enabled, the shared secret will be
+encrypted with a combination of the user's PIN and the master key.
+ 
+=item master_key KEY
+
+Key to use, in combination with the user's PIN, when encrypting the shared
+secret.  The key should be 64 characters in length for maximum security.
+
+=back
+
+=head2 Backend database selection
+
+=over 4
+
+=item backend BACKEND
+
+Specify the type of backend database to use.  Valid options are 'ldap' or
+'db'.
+
+=back
+
+=head2 LDAP backend
+
+=over 4
+
+=item ldap_uri URI
+
+LDAP URI for connecting to the remote server
+
+=item ldap_basedn BASEDN
+
+Base DN to use for searching the remote LDAP directory.
+
+=item ldap_binddn AUTHDN
+
+Distinguished name to use when authenticating to the remote LDAP server.
+
+=item ldap_bindpw AUTHPW
+
+Password to use when authenticating to the remote LDAP server.
+
+=item ldap_cacert CERT
+
+Full path to the CA certificate that was used to sign the remote server's
+certificate.
+
+=item ldap_verify VERIFY
+
+How to verify the server's certificate.  Valid options are 'none', 'optional',
+and 'require'.
+
+=item ldap_timeout TIMEOUT
+
+Timeout when connecting to the remote LDAP server.
+
+=back
+
+=head2 Database backend
+
+=over 4
+
+=item db_type TYPE
+
+Specify the database type.  Current supported values are 'sqlite', 'mysql', and
+'pg'.
+
+=item db_host HOST
+
+Remote host to connect to.  This option is only valid for mysql and pg
+database types.
+
+=item db_name NAME
+
+Name of the database to use.  For sqlite, db_name is combined with db_path to
+create the full path to the database file.
+
+=item db_path PATH
+
+This option is only valid for the sqlite database type and is combined with
+db_name to create the full path to the database file.
+
+=item db_user USERNAME
+
+Username to use when connecting to the remote database.  This option is only
+valid for mysql and pg database types.
+
+=item db_pass PASSWORD
+
+Password to use when connecting to the remote database.  This option is only
+valid for mysql and pg database types.
+
+=back
+
+=head1 INCOMPATIBILITIES
+
+There are no known incompatibilities with MyTOTP
+
+=head1 BUGS
+
+Please report problems to https://github.com/foolean/mytotp/issues
+
+=head1 AUTHOR
+
+Bennett Samowich <bennett@foolean.org>
+
+=head1 LICENSE AND COPYRIGHT
+
+This file is part of MyTOTP.
+
+Copyright 2017 Bennett Samowich <bennett@foolean.org>
+
+MyTOTP is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+MyTOTP is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with MyTOTP.  If not, see <http://www.gnu.org/licenses/>.
+
+=cut

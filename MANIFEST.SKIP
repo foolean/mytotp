@@ -1,0 +1,14 @@
+^_build
+^Build$
+^blib
+~$
+\.bak$
+\.out$
+^MANIFEST\.SKIP$
+CVS
+^.git
+MYMETA.yml
+MYMETA.json
+doit
+t/db/mytotp_test.db
+TODO

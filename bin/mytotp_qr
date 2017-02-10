@@ -1,0 +1,176 @@
+#!/usr/bin/perl -w
+#
+# This file is part of MyTOTP.
+#
+# MyTOTP - My Time-Based One-Time Password
+#
+# Copyright 2017 Bennett Samowich <bennett@foolean.org>
+#
+# MyTOTP is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# MyTOTP is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with MyTOTP.  If not, see <http://www.gnu.org/licenses/>.
+#
+###############################################################################
+use strict;
+use warnings 'all';
+
+use CGI;
+use File::Basename;
+use Imager::QRCode;
+use MyTOTP;
+
+# Our program name and version
+our $PROGRAM = basename(__FILE__);
+our $VERSION = '1.0.0';
+
+# No point in running this on the command-line
+if ( !exists $ENV{'GATEWAY_INTERFACE'} ) {
+    printf "mytotp_qr is not a CLI application\n";
+    exit 1;
+}
+
+# Create our CGI object
+my $cgi = CGI->new;
+
+# Insist on a secure communication channel
+if ( !$cgi->https() ) {
+    printf '%s', $cgi->header();
+    printf "<p>refusing to operate over unencrypted channel</p>\n";
+    exit 1;
+}
+
+# Display the form if we weren't given any data
+if ( !$cgi->param() ) {
+    display_credential_form();
+}
+
+# Don't accept data submitted via GET
+if ( $cgi->request_method ne 'POST' && $cgi->param() ) {
+    printf '%s',                                    $cgi->header();
+    printf "<p>Invalid request method: '%s'</p>\n", $cgi->request_method;
+    exit 1;
+}
+
+# Get the entered username and pin
+my $user = $cgi->param('u');
+my $pin  = $cgi->param('p');
+
+# Display the credential form again if the incoming data is incomplete
+if ( !defined $user || !defined $pin ) {
+    display_credential_form();
+}
+
+# Create our MyTOTP object
+my $mytotp = MyTOTP->new( freeradius => 1 );
+
+# Untaint the username
+if ( $user =~ m/^([[:alpha:]\d])$/smx ) {
+    $user = $1;
+}
+
+# Get the user's secret and step values
+my $entry = $mytotp->get_user($user);
+## no critic(ProtectPrivateSubs)
+my $secret = MyTOTP::_decrypt_secret( $entry->{'secret'}, $pin );
+## use critic
+my $step = $entry->{'step'};
+
+# Generate the QR image
+if ( defined $user && defined $secret && defined $step ) {
+    $mytotp->generate_qr_image( $user, $secret, $step );
+}
+else {
+    display_credential_form('Invalid Username or PIN');
+}
+
+exit 0;
+
+sub display_credential_form {
+    my $MESSAGE = shift;
+
+    if ( !defined $MESSAGE ) {
+        $MESSAGE =
+'Enter your username and PIN then scan the resulting QR code with your TOTP app';
+    }
+
+    printf '%s',   $cgi->header('text/html');
+    printf "%s\n", <<"END_HTML";
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+<title>MyTOTP QR Generator</title>
+</head>
+<body OnLoad="document.account_form.u.focus();">
+<h1>MyTOTP QR Code</h1>
+<form name="account_form" method="POST">
+<p><input type="text" name="u" value="" placeholder="Username"></p>
+<p><input type="password" name="p" value="" placeholder="PIN"></p>
+<input type="submit" value="Generate QR Code">
+</form>
+$MESSAGE<br>
+</body>
+</html>
+END_HTML
+
+    exit 0;
+}
+
+__END__
+
+=head1 NAME
+
+mytotp_qr - MyTOTP QR Code Generation
+
+=head1 SYNOPSIS
+
+    https://yoursite/cgi-bin/mytotp_qr
+
+=head1 DESCRIPTION
+
+B<mytotp_qr> is a CGI tool that generates the QR code, which can be used to
+import the shared secret and account information into a TOTP app.  Symlink, or
+copy, mytotp_qr into a CGI capable path on your web server.  mytotp_qr will
+refuse to operate when accesse over an unencrypted channel. 
+
+=head1 INCOMPATIBILITIES
+
+There are no known incompatibilities with MyTOTP
+
+=head1 BUGS
+
+Please report problems to https://github.com/foolean/mytotp/issues
+
+=head1 AUTHOR
+
+Bennett Samowich <bennett@foolean.org>
+
+=head1 LICENSE AND COPYRIGHT
+
+This file is part of MyTOTP.
+
+Copyright 2017 Bennett Samowich <bennett@foolean.org>
+
+MyTOTP is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+MyTOTP is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with MyTOTP.  If not, see <http://www.gnu.org/licenses/>.
+
+=cut

@@ -1,0 +1,130 @@
+MyTOTP "My TOTP (or Mighty OTP)"
+================================
+
+DESCRIPTION
+-----------
+MyTOTP, pronounced either "My TOTP" or "Mighty OTP", provides centralized
+two-factor authentication (2FA) via integration into FreeRADIUS.  MyTOTP
+can work with any soft-token that generates unique TOKENCODES via the TOTP
+(RFC-6238) algorithm.  Google-Authenticator is probably the most recognisable
+and common client though there are others.
+
+TWO-FACTOR AUTHENTICATION
+-------------------------
+Authentication factors are generally thought of as "something you know",
+"something you have", and "something you are".  Multi-factor authentication is
+when two or more factors are in use.  Typically, two-factor authentication is
+comprised of something you know (e.g. your password) and something you
+have (e.g. your token).  It is debated in some circles whether or not using
+PIN+TOKENCODE is actually two-factor in itself.  Technically it is as the PIN
+is something you know and the TOKENCODE is something you have.  However, the
+PIN can also be thought of as protecting the TOKENCODE.  Thus it is not
+uncommon to use the entire PASSCODE as the "something you have" and the
+Password as the "something you know".  Ultimately the choice is up to the
+system's administrator how much or how little to enforce.
+
+FEATURES
+--------
+* Integrates with FreeRADIUS via rlm_perl
+* Uses Google-Authenticator, or anyother TOTP(RFC-6238) app, as the soft-token
+* Uses PIN+TOKENCODE for authentication
+* Failure based account lockout
+* Set account expiration
+* Administratively lock/unlock accounts
+* Encrypts the account's PIN for storage in the account database
+* Encrypts the account's shared secret with the account's PIN
+* Supports LDAP and DB based backends (sqlite is used for local-only storage)
+* Distinct SYSLOG messages for ease of monitoring and tracking
+* CGI script to generate QR codes
+
+INSTALLATION
+------------
+perl Build.PL
+./Build
+./Build test
+./Build install
+
+DEPENDENCIES
+------------
+MyTOTP will require a few packages and the Build process will complain about
+any missing packages.  To help make things easier, the OS-specific packages
+that were needed are listed below.
+
+* Debian
+    libcgi-pm-perl
+    libconfig-general-perl
+    libcrypt-cbc-perl
+    libcrypt-rijndael-perl
+    libdbi-perl
+    libdigest-sha-perl
+    libimager-qrcode-perl
+    libnet-ldap-perl
+    libreadonly-perl
+    libterm-readkey-perl
+    libtest-exit-perl
+    libtest-output-perl
+    libtest-perl-critic-perl
+
+FreeRADIUS
+----------
+There are multiple options when configuring FreeRADIUS, which depend primarily
+on your needs and your environment.  Below are basic configuration snippets that
+should help get you to a working Two-Factor authentication server.
+
+Ref: http://wiki.freeradius.org/modules/Rlm_perl#config
+
+# /etc/freeradius/modules/perl
+
+    perl {
+        module = /usr/sbin/mytotp_freeradius.pl
+    }
+
+
+# /etc/freeradius/users
+
+    DEFAULT  Auth-Type = Perl
+
+
+# /etc/freeradius/sites-enabled/default
+
+    authenticate {
+        Auth-Type Perl {
+            perl
+        }
+    }
+
+PAM RADIUS AUTH
+---------------
+The most common way have Linux systems authenticate against MyTOTP is with PAM
+Radius Auth.  If you will be using MyTOTP along with another authentication
+method (e.g. LDAP or UNIX passwd) you will want to make sure that you have a
+version >= 1.3.17 as it allows the prompt to be changed.  In prior versions,
+the prompt is hard-coded to "Password: " which tends to lead to confusion when
+users aren't sure if they are to enter their PASSCODE or their Password.
+
+To use MyTOTP via pam_radius_auth, place the following line in the relevant
+files in /etc/pam.d.  The line will generally go before any other
+authentication methods.
+
+  # Require two-factor authentication
+  auth requisite pam_radius_auth.so prompt=PASSCODE
+
+ref: http://freeradius.org/pam_radius_auth/
+
+LOG MESSAGES
+------------
+MyTOTP will generate several types of log messages.  Messages related to the
+authentication process begin with AUTH_ to facilitate ease of monitoring and
+tracking.
+
+AUTH_ACCOUNT_LOCKED:        The account is administratively locked
+AUTH_EXPIRED_TOKEN:         The account's token has expired
+AUTH_INVALID_PIN:           The user entered an invalid PIN
+AUTH_INVALID_SECRET:        The system was unable to decrypt the shared secret
+AUTH_INVALID_TOKENCODE:     The user entered an invalid TOKENCODE
+AUTH_TOKENCODE_REUSE:       The user entered attempted to reuse a TOKENCODE
+AUTH_USERNAME_NOT_FOUND:    The requested user could not be found
+AUTH_VALID_TOKENCODE:       The user successfully authenticated
+error:                      Processing error messages
+fatal:                      Non-recoverable processing error messages
+debug:                      Debugging messages

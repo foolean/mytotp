@@ -1,0 +1,10 @@
+# To-Do list, in no particular order
+
+* Fix soft-token to work with encrypted secret
+  (this should probably be a true client rather than part of mytotpadm)
+
+* Add deb and rpm packaging?
+
+* More regression tests (maybe?)
+    - <account manipulation functions>
+    - validate_passcode

@@ -1,0 +1,20 @@
+# Package building directories
+Build
+_build/
+blib/
+
+# Regression test database directory
+t/db/
+
+# Package json and yaml
+*.json
+*.yml
+
+# Temporary experimentation
+doit
+doit[0-9]
+
+# Temporary output files
+*.out
+*.out[0-9]
+*.orig
