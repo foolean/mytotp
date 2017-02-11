@@ -27,7 +27,7 @@ use lib "$ROOTDIR/lib";
 # Assemble the path to our test config
 my $TEST_CONFIG = abs_path(dirname(__FILE__) . '/mytotp_test.conf');
 
-use MyTOTP;
+use Authen::MyTOTP;
 
 # Initialize variables
 my $tests = 0;
@@ -43,7 +43,7 @@ done_testing( $tests );
 sub test_get_random_data {
     my $bytes = shift || return 0;
 
-    my $data = MyTOTP::_get_random_data($bytes);
+    my $data = Authen::MyTOTP::_get_random_data($bytes);
     $data =~ s/(.)/sprintf("%02x",ord($1))/egsmx;
     my $data_len = ( length $data ) / 2;
     ok( $data_len == $bytes, "generated $data_len bytes of random data, wanted $bytes" );

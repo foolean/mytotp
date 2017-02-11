@@ -26,7 +26,7 @@ use warnings 'all';
 use English qw(-no_match_vars);
 use File::Basename;
 use Getopt::Long;
-use MyTOTP;
+use Authen::MyTOTP;
 use Term::ReadKey;
 use Time::Local;
 
@@ -89,7 +89,7 @@ if ( $my_name eq 'root' ) {
 }
 
 # Create our MyTOTP object
-my $mytotp = MyTOTP->new( debug => $options{'debug'}, );
+my $mytotp = Authen::MyTOTP->new( debug => $options{'debug'}, );
 
 if ( $options{'add'} )    { add_user($user_name); }
 if ( $options{'del'} )    { del_user($user_name); }
@@ -100,7 +100,7 @@ if ( $options{'dump'} )   { dump_users(); exit 0; }
 if ( $options{'lock'} )   { lock_user($user_name); }
 if ( $options{'unlock'} ) { unlock_user($user_name); }
 
-MyTOTP::notice( '%s: no action specified', $PROGRAM );
+Authen::MyTOTP::notice( '%s: no action specified', $PROGRAM );
 usage();
 exit 0;    # should never get here
 
@@ -108,7 +108,8 @@ exit 0;    # should never get here
 #   Print the token database
 sub dump_users {
     if ( !$is_root ) {
-        MyTOTP::fatal( '%s: Only root may enumerate accounts', $PROGRAM );
+        Authen::MyTOTP::fatal( '%s: Only root may enumerate accounts',
+            $PROGRAM );
         exit 1;
     }
     $mytotp->list_users();
@@ -120,7 +121,7 @@ sub dump_users {
 sub lock_user {
     my $username = shift;
     if ( !defined $username ) {
-        MyTOTP::error( '%s: Must provide a username', $PROGRAM );
+        Authen::MyTOTP::error( '%s: Must provide a username', $PROGRAM );
         usage_lock();
     }
     $mytotp->lock_account($username);
@@ -132,7 +133,7 @@ sub lock_user {
 sub unlock_user {
     my $username = shift;
     if ( !defined $username ) {
-        MyTOTP::error( '%s: Must provide a username', $PROGRAM );
+        Authen::MyTOTP::error( '%s: Must provide a username', $PROGRAM );
         usage_unlock();
     }
     $mytotp->unlock_account($username);
@@ -144,18 +145,19 @@ sub unlock_user {
 sub mod_user {
     my $username = shift;
     if ( !$is_root ) {
-        MyTOTP::fatal( '%s: Only root may modify accounts', $PROGRAM );
+        Authen::MyTOTP::fatal( '%s: Only root may modify accounts', $PROGRAM );
         exit 1;
     }
     if ( !defined $username ) {
-        MyTOTP::error( '%s: Must provide a username', $PROGRAM );
+        Authen::MyTOTP::error( '%s: Must provide a username', $PROGRAM );
         usage_mod();
     }
 
     # Get the user's current entry
     my $userent = $mytotp->get_user($username);
     if ( !defined $userent ) {
-        MyTOTP::notice( '%s: user "%s" does not exist', $PROGRAM, $username );
+        Authen::MyTOTP::notice( '%s: user "%s" does not exist',
+            $PROGRAM, $username );
         exit 1;
     }
 
@@ -164,7 +166,7 @@ sub mod_user {
 
         # Make sure the step is numeric
         if ( $options{'step'} !~ m/^\d+$/smx ) {
-            MyTOTP::error( '%s: step value "%s" is not numeric',
+            Authen::MyTOTP::error( '%s: step value "%s" is not numeric',
                 $PROGRAM, $options{'step'} );
             usage_mod();
             exit 1;
@@ -175,7 +177,7 @@ sub mod_user {
     # Updating the secret?
     if ( defined $options{'bits'} ) {
         if ( $options{'bits'} !~ m/^\d+$/smx ) {
-            MyTOTP::error( '%s: secret bits value "%s" is not numeric',
+            Authen::MyTOTP::error( '%s: secret bits value "%s" is not numeric',
                 $PROGRAM, $options{'bits'} );
             usage_mod();
             exit 1;
@@ -189,7 +191,7 @@ sub mod_user {
     if ( defined $options{'lifetime'} ) {
         ## no critic(ProtectPrivateSubs)
         $mytotp->update_expires( $username,
-            MyTOTP::_compute_expiration( $options{'lifetime'} ) );
+            Authen::MyTOTP::_compute_expiration( $options{'lifetime'} ) );
         ## use critic
     }
 
@@ -202,23 +204,24 @@ sub mod_user {
 sub add_user {
     my $username = shift;
     if ( !$is_root ) {
-        MyTOTP::fatal( '%s: Only root may add accounts', $PROGRAM );
+        Authen::MyTOTP::fatal( '%s: Only root may add accounts', $PROGRAM );
         exit 1;
     }
     if ( !defined $username ) {
-        MyTOTP::error( '%s: Must provide a username', $PROGRAM );
+        Authen::MyTOTP::error( '%s: Must provide a username', $PROGRAM );
         usage_add();
     }
 
     # Make sure the user doesn't already exist
     if ( $mytotp->get_user($username) ) {
-        MyTOTP::notice( '%s: user "%s" already exists', $PROGRAM, $username );
+        Authen::MyTOTP::notice( '%s: user "%s" already exists',
+            $PROGRAM, $username );
         exit 0;
     }
 
     # Make sure the step is numeric
     if ( $options{'step'} !~ m/^\d+$/smx ) {
-        MyTOTP::error( '%s: step value "%s" is not numeric',
+        Authen::MyTOTP::error( '%s: step value "%s" is not numeric',
             $PROGRAM, $options{'step'} );
         usage_add();
         exit 1;
@@ -227,7 +230,7 @@ sub add_user {
     # Make sure the secret bits is numeric
     if ( defined $options{'bits'} ) {
         if ( $options{'bits'} !~ m/^\d+$/smx ) {
-            MyTOTP::error( '%s: secret bits value "%s" is not numeric',
+            Authen::MyTOTP::error( '%s: secret bits value "%s" is not numeric',
                 $PROGRAM, $options{'bits'} );
             usage_add();
             exit 1;
@@ -240,8 +243,8 @@ sub add_user {
 
     # Assemble our user entry
     my $userent = {};
-    $userent->{'username'}   = $username;
-    $userent->{'step'}       = $options{'step'} || $MyTOTP::DEFAULT_STEP_SIZE;
+    $userent->{'username'} = $username;
+    $userent->{'step'} = $options{'step'} || $Authen::MyTOTP::DEFAULT_STEP_SIZE;
     $userent->{'secret'}     = $mytotp->generate_secret( $options{'secret'} );
     $userent->{'pin'}        = $pin;
     $userent->{'skew'}       = 0;
@@ -266,16 +269,17 @@ sub add_user {
 sub del_user {
     my $username = shift;
     if ( !$is_root ) {
-        MyTOTP::fatal( '%s: Only root may delete accounts', $PROGRAM );
+        Authen::MyTOTP::fatal( '%s: Only root may delete accounts', $PROGRAM );
         exit 1;
     }
     if ( !defined $username ) {
-        MyTOTP::error( '%s: Must provide a username', $PROGRAM );
+        Authen::MyTOTP::error( '%s: Must provide a username', $PROGRAM );
         usage_del();
     }
 
     if ( !$mytotp->get_user($username) ) {
-        MyTOTP::notice( '%s: user "%s" does not exist', $PROGRAM, $username );
+        Authen::MyTOTP::notice( '%s: user "%s" does not exist',
+            $PROGRAM, $username );
         exit 1;
     }
     $mytotp->del_user($username);
@@ -287,12 +291,12 @@ sub del_user {
 sub user_pin {
     my $username = shift;
     if ( !defined $username && $is_root ) {
-        MyTOTP::error( '%s: Must provide a username', $PROGRAM );
+        Authen::MyTOTP::error( '%s: Must provide a username', $PROGRAM );
         usage_pin();
     }
     if ( !$is_root && defined $username ) {
-        MyTOTP::fatal( '%s: Only root may change the PIN of other accounts',
-            $PROGRAM );
+        Authen::MyTOTP::fatal(
+            '%s: Only root may change the PIN of other accounts', $PROGRAM );
         exit 1;
     }
 
@@ -304,21 +308,24 @@ sub user_pin {
     # Get the account's entry
     my $userent = $mytotp->get_user($username);
     if ( !defined $userent ) {
-        MyTOTP::notice( '%s: user "%s" does not exist', $PROGRAM, $username );
+        Authen::MyTOTP::notice( '%s: user "%s" does not exist',
+            $PROGRAM, $username );
         exit 1;
     }
 
-    MyTOTP::notice( 'Changing PIN for "%s"', $username );
+    Authen::MyTOTP::notice( 'Changing PIN for "%s"', $username );
 
     my $old_pin;
     ## no critic(ProtectPrivateSubs)
-    if ( !$is_root || MyTOTP::_is_encrypted_secret( $userent->{'secret'} ) ) {
+    if ( !$is_root
+        || Authen::MyTOTP::_is_encrypted_secret( $userent->{'secret'} ) )
+    {
         ## use critic
 
         # Verify the user's current PIN
         $old_pin = get_old_pin();
         if ( $userent->{'pin'} ne crypt $old_pin, $userent->{'pin'} ) {
-            MyTOTP::fatal( '%s: Invalid PIN entry, unable to continue',
+            Authen::MyTOTP::fatal( '%s: Invalid PIN entry, unable to continue',
                 $PROGRAM );
             exit 1;    # should never get here
         }
@@ -338,18 +345,20 @@ sub user_pin {
 sub user_info {
     my $username = shift;
     if ( !$is_root ) {
-        MyTOTP::fatal( '%s: Only root may enumerate accounts', $PROGRAM );
+        Authen::MyTOTP::fatal( '%s: Only root may enumerate accounts',
+            $PROGRAM );
         exit 1;
     }
     if ( !defined $username ) {
-        MyTOTP::error( '%s: Must provide a username', $PROGRAM );
+        Authen::MyTOTP::error( '%s: Must provide a username', $PROGRAM );
         usage_info();
     }
 
     # Get the user's entry
     my $userent = $mytotp->get_user($username);
     if ( !defined $userent ) {
-        MyTOTP::notice( '%s: user "%s" does not exist', $PROGRAM, $username );
+        Authen::MyTOTP::notice( '%s: user "%s" does not exist',
+            $PROGRAM, $username );
         exit 1;
     }
 
@@ -398,7 +407,7 @@ sub get_new_pin {
         printf "\n";
 
         if ( $pin1 ne $pin2 ) {
-            MyTOTP::error('PINs do not match');
+            Authen::MyTOTP::error('PINs do not match');
         }
         else {
             return $pin1;
@@ -436,7 +445,7 @@ sub get_old_pin {
         }
 
         if ( $pin1 ne $pin2 ) {
-            MyTOTP::error('PINs do not match');
+            Authen::MyTOTP::error('PINs do not match');
         }
         else {
             return $pin1;

@@ -27,8 +27,8 @@ use lib "$ROOTDIR/lib";
 # Assemble the path to our test config
 my $TEST_CONFIG = abs_path(dirname(__FILE__) . '/mytotp_test.conf');
 
-use MyTOTP;
-my $mytotp = MyTOTP->new( config => $TEST_CONFIG );
+use Authen::MyTOTP;
+my $mytotp = Authen::MyTOTP->new( config => $TEST_CONFIG );
 
 # Initialize the test counter
 my $tests = 0;
@@ -51,13 +51,13 @@ sub test_fatal {
 
     my $srcmsg = sprintf 'testing fatal message %s', $secret;
     my $dstmsg = sprintf "fatal: %s\n", $srcmsg;
-    stdout_is { exits_nonzero { MyTOTP::fatal( $srcmsg ) } $dstmsg } $dstmsg, $dstmsg;
+    stdout_is { exits_nonzero { Authen::MyTOTP::fatal( $srcmsg ) } $dstmsg } $dstmsg, $dstmsg;
     $tests++;
     $tests++;
 
     $srcmsg = sprintf 'testing fatal message %s (arg1=%%s,arg2=%%s)', $secret;
     $dstmsg = sprintf "fatal: testing fatal message %s (arg1=%s,arg2=%s)\n", $secret, $arg1, $arg2;
-    stdout_is { exits_nonzero { MyTOTP::fatal( $srcmsg, $arg1, $arg2 ) } $dstmsg } $dstmsg, $dstmsg;
+    stdout_is { exits_nonzero { Authen::MyTOTP::fatal( $srcmsg, $arg1, $arg2 ) } $dstmsg } $dstmsg, $dstmsg;
     $tests++;
     $tests++;
 

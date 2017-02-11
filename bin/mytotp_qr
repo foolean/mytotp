@@ -26,7 +26,7 @@ use warnings 'all';
 use CGI;
 use File::Basename;
 use Imager::QRCode;
-use MyTOTP;
+use Authen::MyTOTP;
 
 # Our program name and version
 our $PROGRAM = basename(__FILE__);
@@ -70,7 +70,7 @@ if ( !defined $user || !defined $pin ) {
 }
 
 # Create our MyTOTP object
-my $mytotp = MyTOTP->new( freeradius => 1 );
+my $mytotp = Authen::MyTOTP->new( freeradius => 1 );
 
 # Untaint the username
 if ( $user =~ m/^([[:alpha:]\d])$/smx ) {
@@ -80,7 +80,7 @@ if ( $user =~ m/^([[:alpha:]\d])$/smx ) {
 # Get the user's secret and step values
 my $entry = $mytotp->get_user($user);
 ## no critic(ProtectPrivateSubs)
-my $secret = MyTOTP::_decrypt_secret( $entry->{'secret'}, $pin );
+my $secret = Authen::MyTOTP::_decrypt_secret( $entry->{'secret'}, $pin );
 ## use critic
 my $step = $entry->{'step'};
 

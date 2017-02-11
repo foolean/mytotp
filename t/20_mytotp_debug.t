@@ -26,8 +26,8 @@ use lib "$ROOTDIR/lib";
 # Assemble the path to our test config
 my $TEST_CONFIG = abs_path(dirname(__FILE__) . '/mytotp_test.conf');
 
-use MyTOTP;
-my $mytotp = MyTOTP->new( config => $TEST_CONFIG );
+use Authen::MyTOTP;
+my $mytotp = Authen::MyTOTP->new( config => $TEST_CONFIG );
 
 # Initialize the test counter
 my $tests = 0;
@@ -50,20 +50,20 @@ sub test_debug {
 
     my $srcmsg = sprintf 'testing debug message  %s', $secret;
     my $dstmsg = sprintf "debug: %s\n", $srcmsg;
-    $MyTOTP::CONFIG{'debug'} = 1;
-    stdout_is { MyTOTP::debug( $srcmsg ) } $dstmsg, 'debug on: ' . $dstmsg;
+    $Authen::MyTOTP::CONFIG{'debug'} = 1;
+    stdout_is { Authen::MyTOTP::debug( $srcmsg ) } $dstmsg, 'debug on: ' . $dstmsg;
     $tests++;
-    $MyTOTP::CONFIG{'debug'} = 0;
-    stdout_is { MyTOTP::debug( $srcmsg ) } q{}, 'debug off: ' . $dstmsg;
+    $Authen::MyTOTP::CONFIG{'debug'} = 0;
+    stdout_is { Authen::MyTOTP::debug( $srcmsg ) } q{}, 'debug off: ' . $dstmsg;
     $tests++;
 
     $srcmsg = sprintf 'testing debug message %s (arg1=%%s,arg2=%%s)', $secret;
     $dstmsg = sprintf "debug: testing debug message %s (arg1=%s,arg2=%s)\n", $secret, $arg1, $arg2;
-    $MyTOTP::CONFIG{'debug'} = 1;
-    stdout_is { MyTOTP::debug( $srcmsg, $arg1, $arg2 ) } $dstmsg, 'debug on(): ' . $dstmsg;
+    $Authen::MyTOTP::CONFIG{'debug'} = 1;
+    stdout_is { Authen::MyTOTP::debug( $srcmsg, $arg1, $arg2 ) } $dstmsg, 'debug on(): ' . $dstmsg;
     $tests++;
-    $MyTOTP::CONFIG{'debug'} = 0;
-    stdout_is { MyTOTP::debug( $srcmsg, $arg1, $arg2 ) } q{}, 'debug off(): ' . $dstmsg;
+    $Authen::MyTOTP::CONFIG{'debug'} = 0;
+    stdout_is { Authen::MyTOTP::debug( $srcmsg, $arg1, $arg2 ) } q{}, 'debug off(): ' . $dstmsg;
     $tests++;
 
     return $tests;

@@ -26,8 +26,8 @@ use lib "$ROOTDIR/lib";
 # Assemble the path to our test config
 my $TEST_CONFIG = abs_path(dirname(__FILE__) . '/mytotp_test.conf');
 
-use MyTOTP;
-my $mytotp = MyTOTP->new( config => $TEST_CONFIG );
+use Authen::MyTOTP;
+my $mytotp = Authen::MyTOTP->new( config => $TEST_CONFIG );
 
 # Initialize the test counter
 my $tests = 0;
@@ -50,12 +50,12 @@ sub test_notice {
 
     my $srcmsg = sprintf 'testing notice message %s', $secret;
     my $dstmsg = sprintf "%s\n", $srcmsg;
-    stdout_is { MyTOTP::notice( $srcmsg ) } $dstmsg, $srcmsg;
+    stdout_is { Authen::MyTOTP::notice( $srcmsg ) } $dstmsg, $srcmsg;
     $tests++;
 
     $srcmsg = sprintf 'testing notice message %s (arg1=%%s,arg2=%%s)', $secret;
     $dstmsg = sprintf "testing notice message %s (arg1=%s,arg2=%s)\n", $secret, $arg1, $arg2;
-    stdout_is { MyTOTP::notice( $srcmsg, $arg1, $arg2 ) } $dstmsg, $dstmsg;
+    stdout_is { Authen::MyTOTP::notice( $srcmsg, $arg1, $arg2 ) } $dstmsg, $dstmsg;
     $tests++;
 
     return $tests;

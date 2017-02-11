@@ -27,7 +27,7 @@ use lib "$ROOTDIR/lib";
 # Assemble the path to our test config
 my $TEST_CONFIG = abs_path(dirname(__FILE__) . '/mytotp_test.conf');
 
-use MyTOTP;
+use Authen::MyTOTP;
 
 # Initialize variables
 my $tests = 0;
@@ -48,12 +48,12 @@ sub test_is_account_locked {
         my ( $pin, $epin ) = split q{\|}, $line;
 
         my $is_locked;
-        $is_locked = MyTOTP::_is_account_locked( $epin );
+        $is_locked = Authen::MyTOTP::_is_account_locked( $epin );
         ok( $is_locked == 0, "is_account_locked($epin) == 0" );
         $tests++;
 
         my $locked = sprintf '!%s', $epin;
-        $is_locked = MyTOTP::_is_account_locked( $locked );
+        $is_locked = Authen::MyTOTP::_is_account_locked( $locked );
         ok( $is_locked == 1, "is_account_locked($locked) == 1" );
         $tests++;
     }

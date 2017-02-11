@@ -27,7 +27,7 @@ use lib "$ROOTDIR/lib";
 # Assemble the path to our test config
 my $TEST_CONFIG = abs_path(dirname(__FILE__) . '/mytotp_test.conf');
 
-use MyTOTP;
+use Authen::MyTOTP;
 
 # Initialize variables
 my $tests = 0;
@@ -49,12 +49,12 @@ sub test_base32 {
         my $bytes = $hex;
         $bytes =~ s/(..)/chr(hex($1))/egsmx;
  
-        my $encoded = MyTOTP::_base32_encode( $bytes );
+        my $encoded = Authen::MyTOTP::_base32_encode( $bytes );
 
         ok( $encoded eq $base32, "_base32_encode($hex)" );
         $tests++;
 
-#        my $decoded = MyTOTP::TOTP::base32_decode( $base32 );
+#        my $decoded = Authen::MyTOTP::TOTP::base32_decode( $base32 );
 #        $decoded =~ s/(.)/sprintf("%02x",ord($1))/egsmx;
 #        ok( $decoded eq $hex, "base32_decode($base32)");
 #        $tests++;

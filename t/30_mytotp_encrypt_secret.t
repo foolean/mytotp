@@ -27,8 +27,8 @@ use lib "$ROOTDIR/lib";
 # Assemble the path to our test config
 my $TEST_CONFIG = abs_path(dirname(__FILE__) . '/mytotp_test.conf');
 
-use MyTOTP;
-my $mytotp = MyTOTP->new( config => $TEST_CONFIG );
+use Authen::MyTOTP;
+my $mytotp = Authen::MyTOTP->new( config => $TEST_CONFIG );
 
 # Initialize variables
 my $tests = 0;
@@ -51,7 +51,7 @@ sub test_encrypt_secret {
         if ( $pin =~ m/^([a-zA-Z0-9]+)$/smx ) {
             $pin = $1;
         }
-        my $encrypted = MyTOTP::_encrypt_secret( $secret, $pin );
+        my $encrypted = Authen::MyTOTP::_encrypt_secret( $secret, $pin );
         ok( $esecret eq $encrypted, "encrypt_secret($secret,$pin) = $encrypted" );
         $tests++;
     }

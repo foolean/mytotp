@@ -25,7 +25,7 @@ use warnings 'all';
 
 use English qw(-no_match_vars);
 use File::Basename;
-use MyTOTP;
+use Authen::MyTOTP;
 use Readonly;
 
 # Make sure that our hashes are filled from the main
@@ -138,7 +138,7 @@ sub log_attributes {
 # Main MyTOTP authentication handler
 sub mytotp_auth {
 
-    my $MYTOTP = MyTOTP->new( freeradius => 1 );
+    my $MYTOTP = Authen::MyTOTP->new( freeradius => 1 );
 
     # For the moment, all logging is handled by MyTOTP
     if (

@@ -6,7 +6,7 @@ etc/mytotp.conf
 etc/mytotp.conf.pod
 ldap/mytotp.ldif
 ldap/mytotp.schema
-lib/MyTOTP.pm
+lib/Authen/MyTOTP.pm
 sbin/mytotp_freeradius.pl
 MANIFEST
 README

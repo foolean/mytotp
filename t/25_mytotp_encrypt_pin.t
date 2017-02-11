@@ -27,7 +27,7 @@ use lib "$ROOTDIR/lib";
 # Assemble the path to our test config
 my $TEST_CONFIG = abs_path(dirname(__FILE__) . '/mytotp_test.conf');
 
-use MyTOTP;
+use Authen::MyTOTP;
 
 # Initialize variables
 my $tests = 0;
@@ -47,11 +47,11 @@ sub test_encrypt_pin {
         chomp $line;
         my ( $pin, $epin ) = split q{\|}, $line;
 
-        my $encrypted = MyTOTP::_encrypt_pin( $epin );
+        my $encrypted = Authen::MyTOTP::_encrypt_pin( $epin );
         ok( $epin eq $encrypted, "encrypt_pin($epin) recognizes encrypted pin" );
         $tests++;
 
-        $encrypted = MyTOTP::_encrypt_pin( $pin );
+        $encrypted = Authen::MyTOTP::_encrypt_pin( $pin );
         my $enc = crypt $pin, $encrypted;
         ok( $enc eq $encrypted, "encrypt_pin($pin) = $encrypted" );
         $tests++;

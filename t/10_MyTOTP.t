@@ -30,18 +30,18 @@ my $TEST_CONFIG = abs_path(dirname(__FILE__) . '/mytotp_test.conf');
 my $tests = 0;
 
 # Make sure we can load the module
-use_ok( 'MyTOTP' );
+use_ok( 'Authen::MyTOTP' );
 $tests++;
 
 # Create our obejct
-my $mytotp = MyTOTP->new( config => $TEST_CONFIG );
+my $mytotp = Authen::MyTOTP->new( config => $TEST_CONFIG );
 
 # ... did we get something defined?
 ok( defined $mytotp, 'mytotp object defined' );
 $tests++;
 
 # ... is it our module?
-isa_ok( $mytotp, 'MyTOTP' );
+isa_ok( $mytotp, 'Authen::MyTOTP' );
 $tests++;
 
 done_testing( $tests );

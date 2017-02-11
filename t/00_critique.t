@@ -37,7 +37,7 @@ if ( $EVAL_ERROR ) {
 Test::Perl::Critic->import( -profile => 't/perlcriticrc' );
 
 my @FILES = qw(
-    lib/MyTOTP.pm
+    lib/Authen/MyTOTP.pm
     bin/mytotpadm
     bin/mytotp_qr
     sbin/mytotp_freeradius.pl
