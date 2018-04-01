@@ -1475,7 +1475,7 @@ sub _log_message {
 
     # Open a connection to SYSLOG if not already open
     if ( $SYSLOG_ON == 0 ) {
-        openlog( $PROGRAM, 'pid', 'user' );
+        openlog( $PROGRAM, 'pid', 'daemon' );
         $SYSLOG_ON = 1;
     }
 
@@ -1492,7 +1492,7 @@ sub _log_message {
     # Log to SYSLOG if running under FreeRADIUS
     # or if requested to send messages to SYSLOG.
     if ( $SYSLOG || $FREERADIUS ) {
-        syslog( 'info', $fmt, @args );
+        syslog( 'notice', $fmt, @args );
     }
 
     # Print the message to STDOUT if not running under FreeRADIUS
