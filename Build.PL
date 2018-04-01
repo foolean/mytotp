@@ -149,6 +149,7 @@ my $build = $class->new(
         'Crypt::CBC'      => 0,
         'Crypt::Rijndael' => 0,
         'Data::Dumper'    => 0,
+        'DBD::SQLite'     => 0,
         'DBI'             => 0,
         'Digest::SHA'     => 0,
         'English'         => 0,
